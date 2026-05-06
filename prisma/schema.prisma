@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id           Int           @id @default(autoincrement()) @map("id_user")
+  name         String
+  email        String        @unique
+  password     String
+  role         String        @default("customer")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+model Kategori {
+  id     Int     @id @default(autoincrement()) @map("id_kategori")
+  name   String  @unique
+  guitars Guitar[]
+
+  @@map("categories")
+}
+
+model Supplier {
+  id     Int     @id @default(autoincrement()) @map("id_supplier")
+  name   String  @unique
+  city   String?
+  phone  String?
+  guitars Guitar[]
+
+  @@map("suppliers")
+}
+
+model Guitar {
+  id               Int               @id @default(autoincrement()) @map("id_guitar")
+  name             String
+  brand            String
+  type             String 
+  year             Int?
+  color            String?
+  price            Int
+  stock            Int               @default(0)
+  imageUrl         String?
+  id_kategori      Int
+  id_supplier      Int
+  category         Kategori          @relation(fields: [id_kategori], references: [id])
+  supplier         Supplier          @relation(fields: [id_supplier], references: [id])
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  transactionItems TransactionItem[]
+
+  @@map("guitars")
+}
+
+model Transaction {
+  id         Int               @id @default(autoincrement()) @map("id_transaction")
+  id_user    Int
+  totalPrice Int
+  status     String            @default("pending")
+  createdAt  DateTime          @default(now())
+  user       User              @relation(fields: [id_user], references: [id])
+  items      TransactionItem[]
+
+  @@map("transactions")
+}
+
+model TransactionItem {
+  id             Int         @id @default(autoincrement()) @map("id_transaction_item")
+  id_transaction Int
+  id_guitar      Int
+  quantity       Int
+  price          Int
+  subtotal       Int
+  transaction    Transaction @relation(fields: [id_transaction], references: [id])
+  guitar         Guitar      @relation(fields: [id_guitar], references: [id]) 
+
+  @@map("transaction_items")
+}
+
