@@ -5,10 +5,27 @@ export const getAll = async (req, res) => {
   res.json({ message: 'OK', data })
 }
 
+export const getById = async (req, res) => {
+  const { id } = req.params
+  const data = await prisma.kategori.findUnique({ where: { id: parseInt(id) } })
+  if (!data) return res.status(404).json({ message: 'Kategori tidak ditemukan!' })
+  res.json({ message: 'OK', data })
+}
+
 export const create = async (req, res) => {
   const { name } = req.body
   const data = await prisma.kategori.create({ data: { name } })
   res.status(201).json({ message: 'Kategori ditambahkan!', data })
+}
+
+export const update = async (req, res) => {
+  const { id } = req.params
+  const { name } = req.body
+  const data = await prisma.kategori.update({
+    where: { id: parseInt(id) },
+    data: { name }
+  })
+  res.json({ message: 'Kategori diupdate!', data })
 }
 
 export const remove = async (req, res) => {
